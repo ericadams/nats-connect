@@ -19,10 +19,15 @@ func handle(mux *http.ServeMux) {
 	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	mux.HandleFunc("/healthz", healthHandler)
+	mux.HandleFunc("/version", versionHandler)
 }
 
 func healthHandler(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
+}
+
+func versionHandler(w http.ResponseWriter, req *http.Request) {
+	w.Write([]byte(version + "\n"))
 }
 
 // newServeMux builds a ServeMux and populates it with standard pprof handlers.
