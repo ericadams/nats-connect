@@ -1,0 +1,26 @@
+language: go
+go:
+- 1.11.x
+- 1.12.x
+env:
+- GO111MODULE=off
+go_import_path: github.com/seanschade/nats-connect
+install:
+- go get github.com/mattn/goveralls
+- go get github.com/wadey/gocovmerge
+- go get github.com/tcnksm/ghr
+- go get -u honnef.co/go/tools/cmd/staticcheck
+- go get -u github.com/client9/misspell/cmd/misspell
+before_script:
+- EXCLUDE_VENDOR=$(go list ./... | grep -v "/vendor/")
+- go build
+- $(exit $(go fmt $EXCLUDE_VENDOR | wc -l))
+- go vet $EXCLUDE_VENDOR
+- misspell -error -locale US $EXCLUDE_VENDOR
+- staticcheck $EXCLUDE_VENDOR
+script:
+- go test -i $EXCLUDE_VENDOR
+- go test -run=TestNoRace $EXCLUDE_VENDOR
+- GOGC=10 go test -v -race -p=1 --failfast $EXCLUDE_VENDOR
+after_success:
+- if [[ "$TRAVIS_GO_VERSION" =~ 1.11 ]] && [ "$TRAVIS_TAG" != "" ]; then ghr --owner nats-io --token $GITHUB_TOKEN --draft --replace $TRAVIS_TAG pkg/; fi
