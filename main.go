@@ -13,12 +13,12 @@ func printHelp() {
 	var usageStr = `
 Usage: nats-connect [options]
 Server Options:
-    -p, --port <port>                Port to listen on (default: 5120)
-    -c, --conn <connection_string>   Connection string to the database
+	-p, --port <port>                Port to listen on (default: 5120)
+	-c, --conn <connection_string>   Connection string to the database
 
 Common Options:
-    -h, --help                       Show this message
-    -v, --version                    Show version
+	-h, --help                       Show this message
+	-v, --version                    Show version
 `
 	fmt.Printf("%s\n", usageStr)
 }
