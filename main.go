@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -73,6 +74,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not parse flags: %s", err.Error())
 	}
-	srv := newServer(opts)
+
+	conn, err := sql.Open("mssql", opts.Connection)
+	if err != nil {
+		log.Fatal("Open connection failed:", err.Error())
+	}
+	defer conn.Close()
+
+	err = conn.Ping()
+	if err != nil {
+		fmt.Println("Cannot connect: ", err.Error())
+		return
+	}
+
+	srv := newServer(opts, conn)
 	log.Fatal(srv.Run())
 }

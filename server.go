@@ -30,17 +30,26 @@ func versionHandler(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte(version + "\n"))
 }
 
+func (s *server) connzHandler(w http.ResponseWriter, req *http.Request) {
+	b, err := json.Marshal(s.db.Stats())
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	w.Write(b)
+}
+
 // newServeMux builds a ServeMux and populates it with standard pprof handlers.
-func newServeMux() *http.ServeMux {
+func (s *server) newServeMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	handle(mux)
+	s.handle(mux)
 	return mux
 }
 
 // newServer constructs a server at addr with the standard pprof handlers.
-func newServer(opts *option) *server {
+func newServer(opts *option, db *sql.DB) *server {
 	return &server{
 		opts: opts,
+		db:   db,
 	}
 }
 
@@ -49,5 +58,5 @@ func (s *server) Run() error {
 	addr := fmt.Sprintf(":%d", s.opts.Port)
 	log.Printf("starting server on %s", addr)
 
-	return http.ListenAndServe(addr, newServeMux())
+	return http.ListenAndServe(addr, s.newServeMux())
 }
