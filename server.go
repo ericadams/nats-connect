@@ -1,18 +1,23 @@
 package main
 
 import (
+	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/pprof"
+
+	_ "github.com/denisenkom/go-mssqldb"
 )
 
 type server struct {
 	opts *option
+	db   *sql.DB
 }
 
 // handle adds standard http handlers to mux.
-func handle(mux *http.ServeMux) {
+func (s *server) handle(mux *http.ServeMux) {
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
 	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
 	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
@@ -20,6 +25,7 @@ func handle(mux *http.ServeMux) {
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	mux.HandleFunc("/healthz", healthHandler)
 	mux.HandleFunc("/version", versionHandler)
+	mux.HandleFunc("/connz", s.connzHandler)
 }
 
 func healthHandler(w http.ResponseWriter, req *http.Request) {
