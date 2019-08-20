@@ -8,8 +8,6 @@ import (
 	"net/http/pprof"
 
 	"github.com/gorilla/mux"
-
-	_ "github.com/denisenkom/go-mssqldb"
 )
 
 type server struct {
@@ -26,7 +24,8 @@ func (s *server) newRouter() *mux.Router {
 	r.HandleFunc("/debug/pprof/profile", pprof.Profile)
 	r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	r.HandleFunc("/debug/pprof/trace", pprof.Trace)
-	r.HandleFunc("/healthz", healthHandler)
+
+	r.HandleFunc("/health", healthHandler)
 	r.HandleFunc("/version", versionHandler)
 	r.HandleFunc("/connectors", s.connectorsHandler)
 	r.HandleFunc("/sources", s.sourcesHandler)
