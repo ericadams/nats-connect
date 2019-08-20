@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -69,22 +68,20 @@ func parseFlags() (*option, error) {
 }
 
 func main() {
-	log.SetOutput(os.Stderr)
+	log.SetOutput(os.Stdout)
 	opts, err := parseFlags()
 	if err != nil {
 		log.Fatalf("could not parse flags: %s", err.Error())
 	}
 
-	conn, err := sql.Open("mssql", opts.Connection)
+	conn, err := NewConnector(opts.Connection)
 	if err != nil {
 		log.Fatal("Open connection failed:", err.Error())
 	}
 	defer conn.Close()
 
-	err = conn.Ping()
-	if err != nil {
-		fmt.Println("Cannot connect: ", err.Error())
-		return
+	if err := conn.Start(); err != nil {
+		log.Fatal("Could not start connector:", err.Error())
 	}
 
 	srv := newServer(opts, conn)
